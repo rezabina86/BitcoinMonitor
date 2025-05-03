@@ -1,11 +1,18 @@
 ## Bitcoin Watcher:
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/8f80ca50-4601-439f-919d-e8fd53e0d38c" width=250>
+  <img src="https://github.com/user-attachments/assets/80d1f75f-4ce4-42fd-98fb-db482145369c" width=250>
+</p>
+
 The app uses Combine to drive data flow and navigation. `AppTriggerFactory`
 emits refresh triggers via timers and manual retries, which power the
 `BTCPriceUseCase` and `BTCLatestTickUseCase`. These use cases fetch data from
 repositories and emit `loading`, `error`, or `data` states as publishers.
 Navigation is handled reactively using a `NavigationRouter` that updates a
 `NavigationPath` in response to user actions.
+
+![visual-readme](https://github.com/user-attachments/assets/cd7db01d-dd1a-47a5-91e7-d2066488879c)
 
 ##API Layer:
 It consistes of two API calls: 
