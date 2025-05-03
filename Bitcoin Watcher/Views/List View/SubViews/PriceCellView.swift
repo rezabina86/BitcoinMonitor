@@ -12,20 +12,20 @@ struct PriceCellView: View {
     let viewState: PriceCellViewState
     
     var body: some View {
-        VStack(alignment: .center) {
-            Text(viewState.date, style: .date)
-                .font(.caption)
-            
-            Text(viewState.price)
+        HStack(alignment: .center) {
+            Text(viewState.formattedAmount)
                 .font(.callout)
                 .bold()
+            Spacer()
+            Text(viewState.date, style: .date)
+                .font(.caption)
         }
+        .padding(8)
         .frame(maxWidth: .infinity)
-        .frame(height: 64)
         .cornerRadius(8)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.primary, lineWidth: 1 / 2)
+                .stroke(Color.primary.opacity(0.2), lineWidth: 0.5)
         )
     }
 }
@@ -33,7 +33,8 @@ struct PriceCellView: View {
 struct PriceCellViewState: Equatable, Identifiable {
     let id: Int
     let date: Date
-    let price: String
+    let formattedAmount: String
+    let amount: Double
     let onTap: UserAction
 }
 
@@ -42,7 +43,8 @@ struct PriceCellViewState: Equatable, Identifiable {
         viewState: .init(
             id: 0,
             date: .now,
-            price: "80,000",
+            formattedAmount: "80,000",
+            amount: 0,
             onTap: .fake
         )
     )

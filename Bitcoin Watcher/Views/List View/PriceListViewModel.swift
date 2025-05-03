@@ -86,8 +86,6 @@ final class PriceListViewModel: PriceListViewModelType {
     
     private func createCurrentPriceViewState(from dataState: BTCLatestTickDataState) -> PriceListViewState.CurrentPriceViewState {
         switch dataState {
-        case .loading:
-            return .loading
         case .error:
             return .error(.init(
                 message: "Something went wrong",
@@ -123,8 +121,9 @@ final class PriceListViewModel: PriceListViewModelType {
                 PriceCellViewState(
                     id: index,
                     date: priceModel.date,
-                    price: priceFormatter.formate(amount: priceModel.close,
-                                                  currency: AppConfig.currentCurrency),
+                    formattedAmount: priceFormatter.formate(amount: priceModel.close,
+                                                            currency: AppConfig.currentCurrency),
+                    amount: priceModel.close,
                     onTap: .init { [detailViewStateConverter, navigationRouter] in
                         navigationRouter.gotoDestination(.detailView(viewState: detailViewStateConverter.create(from: priceModel)))
                     })

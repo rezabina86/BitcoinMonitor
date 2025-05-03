@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import Charts
 
 struct PriceListView: View {
     
@@ -32,19 +33,11 @@ struct PriceListView: View {
         ) {
             VStack(alignment: .center) {
                 createCurrentPriceView(from: viewState.currentPriceViewState)
-                Spacer()
-                
-                Rectangle()
-                    .frame(height: 2)
-                    .background(Color.primary)
-                    .cornerRadius(1)
-                
-                Text("Bitcoin Price History (2 Weeks)")
-                    .font(.headline)
-                
                 createHistoryView(from: viewState.historyViewState)
+                Spacer()
             }
             .padding([.horizontal], 12)
+            .ignoresSafeArea(edges: .bottom)
             .navigationDestination(
                 for: NavigationDestination.self
             ) { route in
@@ -63,17 +56,16 @@ struct PriceListView: View {
     @ObservedState private var currentNavigationPath: NavigationPath = .init()
     private var subscriptions: Set<AnyCancellable> = []
     private let viewModel: PriceListViewModelType
-    private let columns: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 12), count: 2)
+    private let columns: [GridItem] = Array(repeating: GridItem(.flexible(), spacing: 12), count: 1)
     
     @ViewBuilder
     private func createCurrentPriceView(from viewState: PriceListViewState.CurrentPriceViewState) -> some View {
         switch viewState {
-        case .loading:
-            ProgressView()
         case let .error(viewState):
             ErrorView(viewState: viewState)
         case let .content(viewState):
             LatestPriceCellView(viewState: viewState)
+                .animation(.easeInOut(duration: 0.5), value: viewState)
         }
     }
     
@@ -85,20 +77,57 @@ struct PriceListView: View {
         case let .error(viewState):
             ErrorView(viewState: viewState)
         case let .content(prices):
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(prices) { viewState in
-                        Button {
-                            viewState.onTap.action()
-                        } label: {
-                            PriceCellView(viewState: viewState)
-                        }
-                        .buttonStyle(.plain)
+            VStack(spacing: 12) {
+                createChart(prices: prices)
+                createPriceListView(prices: prices)
+            }
+            .padding(12)
+            .animation(.easeInOut(duration: 0.5), value: viewState)
+        }
+    }
+    
+    @ViewBuilder
+    private func createPriceListView(prices: [PriceCellViewState]) -> some View {
+        ScrollView {
+            LazyVGrid(columns: columns, spacing: 12) {
+                ForEach(prices) { viewState in
+                    Button {
+                        viewState.onTap.action()
+                    } label: {
+                        PriceCellView(viewState: viewState)                        
                     }
+                    .buttonStyle(.plain)
                 }
-                .padding(12)
             }
         }
+    }
+    
+    @ViewBuilder
+    private func createChart(prices: [PriceCellViewState]) -> some View {
+        Chart {
+            ForEach(prices) { item in
+                LineMark(
+                    x: .value("Date", item.date),
+                    y: .value("Price", item.amount)
+                )
+                .interpolationMethod(.monotone)
+                .foregroundStyle(.orange)
+            }
+        }
+        .chartXAxis {
+            AxisMarks(values: .stride(by: .day)) { value in
+                AxisValueLabel(format: .dateTime.day())
+            }
+        }
+        .chartYAxis {
+            AxisMarks(position: .leading)
+        }
+        .chartYScale(domain: prices.map(\.amount).min()!...prices.map(\.amount).max()!)
+        .chartPlotStyle { plotArea in
+            plotArea
+                .padding(.trailing, 16)
+        }
+        .aspectRatio(1.7, contentMode: .fit)
     }
 }
 
@@ -109,7 +138,6 @@ struct PriceListViewState: Equatable {
 
 extension PriceListViewState {
     enum CurrentPriceViewState: Equatable {
-        case loading
         case error(ErrorViewState)
         case content(LatestPriceCellViewState)
     }
@@ -122,7 +150,7 @@ extension PriceListViewState {
 }
 
 extension PriceListViewState {
-    static let empty: Self = .init(currentPriceViewState: .loading,
+    static let empty: Self = .init(currentPriceViewState: .content(.init(price: "", flag: .unchanged, lastUpdate: .now)),
                                    historyViewState: .loading)
 }
 

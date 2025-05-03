@@ -67,11 +67,15 @@ public func injectDependencies(into container: ContainerType) {
     }
     
     container.register { _ -> PriceFormatterType in
-        PriceFormatter()
+        PriceFormatter(localeProvider: container.resolve())
     }
     
     container.register { container -> DetailViewStateConverterType in
         DetailViewStateConverter(priceFormatter: container.resolve())
+    }
+    
+    container.register { _ -> LocaleProviderType in
+        LocaleProvider()
     }
 }
 

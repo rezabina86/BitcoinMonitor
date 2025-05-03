@@ -57,10 +57,10 @@ final class PriceListViewModelTests: XCTestCase {
     }
     
     func testCreateLoadingViewState() {
-        mockLatestPriceUseCase.createSubject.send(.loading)
+        mockLatestPriceUseCase.createSubject.send(.data(.fake()))
         mockHistoryUseCase.createSubject.send(.loading)
         
-        XCTAssertEqual(testSubscriber.receivedValues.last, .init(currentPriceViewState: .loading, historyViewState: .loading))
+        XCTAssertEqual(testSubscriber.receivedValues.last?.historyViewState, .loading)
         
         XCTAssertEqual(mockLatestPriceUseCase.calls, [.create])
         XCTAssertEqual(mockHistoryUseCase.calls, [.create])
@@ -108,17 +108,19 @@ final class PriceListViewModelTests: XCTestCase {
         let mockDate: Date = .init(timeIntervalSince1970: 1744209548)
         let fakeModel: BTCPriceModel.Price = .fake(date: mockDate)
         
-        mockLatestPriceUseCase.createSubject.send(.loading)
+        mockLatestPriceUseCase.createSubject.send(.data(.fake()))
         mockHistoryUseCase.createSubject.send(.data(.fake(prices: [fakeModel])))
         
-        let expectedViewState: [PriceCellViewState] = [.init(id: 0, date: mockDate, price: "70000", onTap: .fake)]
+        let expectedViewState: [PriceCellViewState] = [.init(id: 0, date: mockDate, formattedAmount: "70000", amount: 80918.0, onTap: .fake)]
         
-        XCTAssertEqual(testSubscriber.receivedValues.last, .init(currentPriceViewState: .loading,
-                                                                 historyViewState: .content(expectedViewState)))
+        XCTAssertEqual(testSubscriber.receivedValues.last?.historyViewState, .content(expectedViewState))
         
         XCTAssertEqual(mockLatestPriceUseCase.calls, [.create])
         XCTAssertEqual(mockHistoryUseCase.calls, [.create])
-        XCTAssertEqual(mockPriceFormatter.calls, [.format(amount: 80918.0, currency: .euro)])
+        XCTAssertEqual(mockPriceFormatter.calls, [
+            .format(amount: 70000.0, currency: .euro),
+            .format(amount: 80918.0, currency: .euro)
+        ])
         
         // Tap on cell
         testSubscriber.receivedValues.last?.onTapHistoryCell?.action()

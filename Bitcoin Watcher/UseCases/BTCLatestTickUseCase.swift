@@ -9,7 +9,6 @@ import Combine
 import Foundation
 
 enum BTCLatestTickDataState: Equatable {
-    case loading
     case error
     case data(BTCLatestTickModel)
 }
@@ -46,7 +45,6 @@ struct BTCLatestTickUseCase: BTCLatestTickUseCaseType {
                 }
             }
         }
-        .prepend(.loading)
         .eraseToAnyPublisher()
     }
     

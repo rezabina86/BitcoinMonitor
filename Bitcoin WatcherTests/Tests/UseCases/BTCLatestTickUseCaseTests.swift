@@ -52,7 +52,7 @@ final class BTCLatestTickUseCaseTests: XCTestCase {
         
         wait(for: [expectation], timeout: 1.0)
         
-        XCTAssertEqual(results, [.loading, .data(.fake())])
+        XCTAssertEqual(results, [.data(.fake())])
         XCTAssertEqual(mockAppTriggerFactory.calls, [.create(triggers: [.retry(.latestPrice), .timer(interval: 60)])])
         XCTAssertEqual(mockRepository.calls.count, 1)
         cancellable.cancel()
@@ -68,9 +68,9 @@ final class BTCLatestTickUseCaseTests: XCTestCase {
         let cancellable = sut.create()
             .sink { ds in
                 results.append(ds)
-                if results.count == 2 {
+                if results.count == 1 {
                     expectation1.fulfill()
-                } else if results.count == 4 {
+                } else if results.count == 2 {
                     expectation2.fulfill()
                 }
             }
@@ -84,7 +84,7 @@ final class BTCLatestTickUseCaseTests: XCTestCase {
 
         wait(for: [expectation2], timeout: 1.0)
 
-        XCTAssertEqual(results, [.loading, .data(.fake()), .loading, .data(.fake())])
+        XCTAssertEqual(results, [.data(.fake()), .data(.fake())])
         
         cancellable.cancel()
         
@@ -113,7 +113,7 @@ final class BTCLatestTickUseCaseTests: XCTestCase {
         
         wait(for: [expectation], timeout: 1.0)
         
-        XCTAssertEqual(results, [.loading, .error])
+        XCTAssertEqual(results, [.error])
         cancellable.cancel()
     }
 }

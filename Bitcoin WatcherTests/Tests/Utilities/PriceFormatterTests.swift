@@ -11,14 +11,17 @@ import Foundation
 
 final class PriceFormatterTests: XCTestCase {
     var sut: PriceFormatter!
+    var mockLocaleProvider: LocaleProviderMock!
     
     override func setUp() {
         super.setUp()
-        sut = .init()
+        mockLocaleProvider = .init()
+        sut = .init(localeProvider: mockLocaleProvider)
     }
     
     override func tearDown() {
         super.tearDown()
+        mockLocaleProvider = nil
         sut = nil
     }
     
