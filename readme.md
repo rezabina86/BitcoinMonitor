@@ -12,7 +12,8 @@ repositories and emit `loading`, `error`, or `data` states as publishers.
 Navigation is handled reactively using a `NavigationRouter` that updates a
 `NavigationPath` in response to user actions.
 
-![visual-readme](https://github.com/user-attachments/assets/cd7db01d-dd1a-47a5-91e7-d2066488879c)
+![visual-readme](https://github.com/user-attachments/assets/d603a016-0c9e-40ef-a638-c3446e9ea365)
+
 
 ##API Layer:
 It consistes of two API calls: 
